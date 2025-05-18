@@ -1,421 +1,496 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Админ-панель</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-      display: flex;
-    }
-
-    .nav-panel {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 200px;
-      height: 100%;
-      background-color: #333;
-      color: white;
-      padding: 20px;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .nav-panel ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .nav-panel li {
-      margin: 20px 0;
-    }
-
-    .nav-panel a {
-      color: white;
-      text-decoration: none;
-      font-size: 18px;
-      display: block;
-    }
-
-    .nav-panel a:hover {
-      background-color: #444;
-      padding: 5px;
-    }
-
-    .admin-container {
-      margin-left: 220px;
-      padding: 20px;
-      width: calc(100% - 240px);
-    }
-
-    .admin-panel {
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-    }
-
-    .admin-header {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .admin-header .username {
-      margin-right: 20px;
-      font-weight: bold;
-    }
-
-    .admin-header .logout-btn {
-      background-color: #f44336;
-      color: white;
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .admin-header .logout-btn:hover {
-      background-color: #d32f2f;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    table th, table td {
-      padding: 12px;
-      text-align: left;
-      border: 1px solid #ddd;
-    }
-
-    button {
-      padding: 6px 10px;
-      margin-right: 5px;
-    }
-
-    @media (max-width: 768px) {
-      .admin-container {
-        padding: 15px;
-        margin-left: 20px;
-        width: calc(100% - 40px);
-      }
-
-      .nav-panel {
-        width: 160px;
-      }
-    }
-
-    .login-container {
-      margin: auto;
-      padding: 40px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
-      margin-top: 100px;
-      width: 300px;
-    }
-
-    .login-container input {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-    }
-
-    .login-container button {
-      padding: 10px;
-      width: 100%;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-    }
-
-    .login-container button:hover {
-      background-color: #45a049;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Panel </title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    margin: 0;
+    padding: 0;
+    color: #f0f4f8;
+  }
+  .container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 25px;
+    background: rgba(30, 44, 114, 0.85);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    animation: fadeIn 1s ease forwards;
+  }
+  @keyframes fadeIn {
+    from {opacity:0; transform: translateY(-20px);}
+    to {opacity:1; transform: translateY(0);}
+  }
+  h2, h3 {
+    text-align: center;
+    color: #a8c0ff;
+  }
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0 18px 0;
+    border-radius: 8px;
+    border: none;
+    background-color: #355a9a;
+    color: #e0e6f8;
+    font-size: 16px;
+  }
+  input::placeholder {
+    color: #aab8e4;
+  }
+  button {
+    padding: 12px 24px;
+    background-color: #4c73ff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #3b5fd1;
+  }
+  .hidden { display: none; }
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  .nav button {
+    flex: 1 1 120px;
+  }
+  .section { display: none; }
+  .section.active {
+    display: block;
+    animation: fadeIn 0.5s ease forwards;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #506db7;
+    color: #d0d9ff;
+  }
+  th {
+    background-color: #3b4e94;
+    text-align: left;
+  }
+  tr:hover {
+    background-color: #4e69be;
+  }
+  .admin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #4e69be;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background-color: rgba(40, 60, 120, 0.5);
+  }
+  .admin-actions button {
+    margin-left: 8px;
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+  @media (max-width: 600px) {
+    .container { margin: 20px; padding: 15px; }
+    .nav button { font-size: 14px; padding: 10px; }
+    input[type="text"], input[type="password"] { font-size: 14px; padding: 10px;}
+  }
+</style>
 </head>
 <body>
-  <div id="loginPage" class="login-container" style="display: none;">
-    <h2>Вход</h2>
-    <input type="text" id="username" placeholder="Имя администратора" />
-    <input type="password" id="password" placeholder="Пароль" />
-    <button onclick="login()">Войти</button>
-    <p id="loginError" style="color: red;"></p>
+
+<div class="container" id="login">
+  <h2>Вход в админ-панель</h2>
+  <input type="text" id="username" placeholder="Имя пользователя" autocomplete="off" />
+  <input type="password" id="password" placeholder="Пароль" autocomplete="off" />
+  <button onclick="login()">Войти</button>
+  <p id="login-error" style="color:#ff6b6b; text-align:center; margin-top:12px;"></p>
+</div>
+
+<div class="container hidden" id="panel">
+  <h2>Добро пожаловать, <span id="admin-name"></span></h2>
+  <div class="nav">
+    <button onclick="showSection('dashboard')">Главная</button>
+    <button onclick="showSection('add-user')">Добавить пользователя</button>
+    <button onclick="showSection('users')">Пользователи</button>
+    <button onclick="showSection('actions')">Последние действия</button>
+    <button onclick="showSection('admins')" id="admin-tab">Список админов</button>
+    <button onclick="logout()">Выйти</button>
   </div>
 
-  <div id="adminPage" style="display: none;">
-    <div class="nav-panel">
-      <ul>
-        <li><a href="#" onclick="showOnly('worldMap')">🏠 Главная</a></li>
-        <li><a href="#" onclick="showOnly('addUserSection')">➕ Добавить пользователя</a></li>
-        <li><a href="#" onclick="showOnly('userListSection')">👥 Пользователи</a></li>
-        <li><a href="#" onclick="showOnly('adminActions')">📜 Последние действия</a></li>
-        <li><a href="#" onclick="showOnly('statistics')">📊 Статистика</a></li>
-        <li id="adminManagementTab" style="display: none;"><a href="#" onclick="showOnly('adminManagement')">🔒 Управление админами</a></li>
-      </ul>
-    </div>
-
-    <div class="admin-container">
-      <div class="admin-panel">
-        <div class="admin-header">
-          <span class="username" id="adminUsername"></span>
-          <button class="logout-btn" onclick="logout()">Выход</button>
-        </div>
-
-        <div id="worldMap" style="height: 400px; margin-bottom: 20px;"></div>
-
-        <div id="addUserSection" style="display: none;">
-          <h2>Добавить пользователя</h2>
-          <input type="text" id="name" placeholder="Имя" />
-          <input type="text" id="address" placeholder="Адрес (lat, lng)" />
-          <input type="text" id="phone" placeholder="Телефон" />
-          <button onclick="addUser()">Добавить</button>
-        </div>
-
-        <div id="userListSection" style="display: none;">
-          <h2>Пользователи</h2>
-          <input type="text" id="search" placeholder="Поиск пользователей" oninput="searchUser()" />
-          <table id="userTable">
-            <thead><tr><th>Имя</th><th>Телефон</th><th>Адрес</th><th>Добавил</th><th>Действия</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <div id="adminActions" style="display: none;">
-          <h2>Последние действия админов</h2>
-          <ul id="adminActionsList"></ul>
-        </div>
-
-        <div id="statistics" style="display: none;">
-          <h2>Статистика</h2>
-          <ul id="adminStats"></ul>
-        </div>
-
-        <div id="adminManagement" style="display: none;">
-          <h2>Управление администраторами</h2>
-          <table id="adminListTable">
-            <thead><tr><th>Админ</th><th>Статус</th><th>Действия</th></tr></thead>
-            <tbody></tbody>
-          </table>
-          <h3>Регистрация нового админа</h3>
-          <input type="text" id="newAdminUsername" placeholder="Имя нового админа" />
-          <input type="password" id="newAdminPassword" placeholder="Пароль нового админа" />
-          <button onclick="registerNewAdmin()">Зарегистрировать</button>
-        </div>
-      </div>
-    </div>
+  <div class="section" id="dashboard">
+    <h3>Карта мира</h3>
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3151.83543450937!2d144.95565131565684!3d-37.81720974201198!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sau!4v1580279461015!5m2!1sen!2sau"
+      width="100%"
+      height="300"
+      style="border:0;"
+      allowfullscreen=""
+      loading="lazy"
+    ></iframe>
   </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    if (!localStorage.getItem('admins')) {
-      const initialAdmins = [
-        { username: 'admin1', password: 'adminpass', isBlocked: false },
-        { username: 'admin2', password: 'admin2pass', isBlocked: false },
-        { username: 'admin3', password: 'admin3pass', isBlocked: false }
-      ];
-      localStorage.setItem('admins', JSON.stringify(initialAdmins));
+  <div class="section" id="add-user">
+    <h3>Добавить пользователя</h3>
+    <input type="text" id="new-name" placeholder="Имя" />
+    <input type="text" id="new-address" placeholder="Адрес" />
+    <input type="text" id="new-phone" placeholder="Номер" />
+    <button onclick="addUser()">Добавить</button>
+  </div>
+
+  <div class="section" id="users">
+    <h3>Пользователи</h3>
+    <input type="text" id="search-user" placeholder="Поиск" oninput="filterUsers()" />
+    <table id="user-table">
+      <thead><tr><th>Имя</th><th>Адрес</th><th>Номер</th><th>Действия</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="section" id="actions">
+    <h3>Последние действия</h3>
+    <ul id="log-list"></ul>
+  </div>
+
+  <div class="section" id="admins">
+    <h3>Список админов</h3>
+    <div id="admin-list"></div>
+    <h3>Добавить нового админа</h3>
+    <input type="text" id="new-admin-name" placeholder="Имя админа" />
+    <input type="password" id="new-admin-pass" placeholder="Пароль админа" />
+    <button onclick="addAdmin()">Добавить админа</button>
+  </div>
+</div>
+
+<script>
+  // Фейковая база данных в памяти + localStorage для сохранения
+  const STORAGE_KEYS = {
+    admins: 'adminPanelAdmins',
+    users: 'adminPanelUsers',
+    actions: 'adminPanelActions'
+  };
+
+  let admins = JSON.parse(localStorage.getItem(STORAGE_KEYS.admins)) || [
+    { username: 'admin', password: 'pass', blocked: false },
+    { username: 'admin2', password: 'pass2', blocked: false },
+    { username: 'admin3', password: 'pass3', blocked: false }
+  ];
+  let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users)) || [];
+  let actions = JSON.parse(localStorage.getItem(STORAGE_KEYS.actions)) || [];
+
+  let currentAdmin = null;
+  let editingUserId = null;
+
+  // Сохраняем данные
+  function saveData() {
+    localStorage.setItem(STORAGE_KEYS.admins, JSON.stringify(admins));
+    localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
+    localStorage.setItem(STORAGE_KEYS.actions, JSON.stringify(actions));
+  }
+
+  function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    const admin = admins.find(a => a.username === username);
+    if (!admin) {
+      showLoginError('Неверное имя пользователя или пароль');
+      return;
+    }
+    if (admin.blocked) {
+      showLoginError('Ваш аккаунт заблокирован');
+      return;
+    }
+    if (admin.password !== password) {
+      showLoginError('Неверное имя пользователя или пароль');
+      return;
     }
 
-    if (!localStorage.getItem('users')) localStorage.setItem('users', JSON.stringify([]));
-    if (!localStorage.getItem('adminActions')) localStorage.setItem('adminActions', JSON.stringify([]));
+    currentAdmin = admin;
+    document.getElementById('admin-name').textContent = currentAdmin.username;
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('panel').classList.remove('hidden');
+    showSection('dashboard');
+    document.getElementById('login-error').textContent = '';
+    updateUI();
+    logAction(`${currentAdmin.username} вошел в систему`);
+  }
 
-    const admins = JSON.parse(localStorage.getItem('admins'));
-    let users = JSON.parse(localStorage.getItem('users'));
-    let adminActions = JSON.parse(localStorage.getItem('adminActions'));
+  function logout() {
+    logAction(`${currentAdmin.username} вышел из системы`);
+    currentAdmin = null;
+    document.getElementById('panel').classList.add('hidden');
+    document.getElementById('login').classList.remove('hidden');
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+  }
 
-    const map = L.map('worldMap').setView([20, 0], 2);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  function showLoginError(text) {
+    document.getElementById('login-error').textContent = text;
+  }
 
-    function showOnly(id) {
-      ['worldMap', 'addUserSection', 'userListSection', 'adminActions', 'statistics', 'adminManagement'].forEach(
-        sec => document.getElementById(sec).style.display = sec === id ? 'block' : 'none'
-      );
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(sec => {
+      sec.classList.remove('active');
+    });
+    document.getElementById(id).classList.add('active');
+    if (id === 'users') renderUsers();
+    if (id === 'admins') renderAdmins();
+    if (id === 'actions') renderActions();
+  }
+
+  // Добавление пользователя
+  function addUser() {
+    if (currentAdmin.username !== 'admin') {
+      alert('Только admin может добавлять пользователей!');
+      return;
+    }
+    const name = document.getElementById('new-name').value.trim();
+    const address = document.getElementById('new-address').value.trim();
+    const phone = document.getElementById('new-phone').value.trim();
+    if (!name || !address || !phone) {
+      alert('Заполните все поля');
+      return;
     }
 
-    function login() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const admin = admins.find(a => a.username === username && a.password === password);
-      if (admin) {
-        if (admin.isBlocked) {
-          document.getElementById('loginError').textContent = 'Администратор заблокирован.';
+    if(editingUserId !== null) {
+      // Редактируем пользователя
+      const user = users.find(u => u.id === editingUserId);
+      if (user) {
+        user.name = name;
+        user.address = address;
+        user.phone = phone;
+        logAction(`Пользователь ${user.name} обновлен ${currentAdmin.username}`);
+      }
+      editingUserId = null;
+      document.querySelector('#add-user button').textContent = 'Добавить';
+    } else {
+      // Новый пользователь
+      const id = Date.now();
+      users.push({ id, name, address, phone });
+      logAction(`Добавлен пользователь ${name} админом ${currentAdmin.username}`);
+    }
+
+    saveData();
+    clearUserForm();
+    renderUsers();
+    showSection('users');
+  }
+
+  function clearUserForm() {
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-address').value = '';
+    document.getElementById('new-phone').value = '';
+  }
+
+  // Рендер пользователей в таблице
+  function renderUsers() {
+    const tbody = document.querySelector('#user-table tbody');
+    tbody.innerHTML = '';
+    const filter = document.getElementById('search-user').value.toLowerCase();
+
+    users
+      .filter(u => u.name.toLowerCase().includes(filter) || u.address.toLowerCase().includes(filter) || u.phone.includes(filter))
+      .forEach(u => {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td>${u.name}</td>
+          <td>${u.address}</td>
+          <td>${u.phone}</td>
+          <td>
+            <button onclick="editUser(${u.id})">Редактировать</button>
+            ${(currentAdmin.username === 'admin') ? `<button onclick="deleteUser(${u.id})" style="margin-left:5px; color:#ff5555;">Удалить</button>` : ''}
+            <button onclick="showUserOnMap('${encodeURIComponent(u.address)}')" style="margin-left:5px;">Карта</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+  }
+
+  // Поиск пользователей
+  function filterUsers() {
+    renderUsers();
+  }
+
+  function editUser(id) {
+    if (currentAdmin.username !== 'admin') {
+      alert('Только admin может редактировать пользователей!');
+      return;
+    }
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+    document.getElementById('new-name').value = user.name;
+    document.getElementById('new-address').value = user.address;
+    document.getElementById('new-phone').value = user.phone;
+    editingUserId = id;
+    showSection('add-user');
+    document.querySelector('#add-user button').textContent = 'Сохранить';
+  }
+
+  function deleteUser(id) {
+    if (currentAdmin.username !== 'admin') {
+      alert('Только admin может удалять пользователей!');
+      return;
+    }
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+    if (confirm(`Удалить пользователя "${user.name}"?`)) {
+      users = users.filter(u => u.id !== id);
+      saveData();
+      renderUsers();
+      logAction(`Пользователь ${user.name} удалён админом ${currentAdmin.username}`);
+    }
+  }
+
+  function showUserOnMap(address) {
+    const url = `https://www.google.com/maps/search/?api=1&query=${address}`;
+    window.open(url, '_blank');
+  }
+
+  // Логи действий
+  function logAction(text) {
+    const timestamp = new Date().toLocaleString();
+    actions.unshift({ text, timestamp });
+    if (actions.length > 50) actions.pop();
+    saveData();
+    if(document.getElementById('actions').classList.contains('active')) renderActions();
+  }
+
+  function renderActions() {
+    const ul = document.getElementById('log-list');
+    ul.innerHTML = '';
+    actions.forEach((a, i) => {
+      const li = document.createElement('li');
+      li.textContent = `[${a.timestamp}] ${a.text}`;
+      if(currentAdmin.username === 'admin') {
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Удалить';
+        delBtn.style.marginLeft = '10px';
+        delBtn.style.color = '#ff6b6b';
+        delBtn.onclick = () => {
+          if(confirm('Удалить это действие?')) {
+            actions.splice(i, 1);
+            saveData();
+            renderActions();
+          }
+        };
+        li.appendChild(delBtn);
+      }
+      ul.appendChild(li);
+    });
+  }
+
+  // Админы
+  function renderAdmins() {
+    const container = document.getElementById('admin-list');
+    container.innerHTML = '';
+
+    if(currentAdmin.username !== 'admin') {
+      container.textContent = 'Доступ закрыт';
+      return;
+    }
+
+    admins.forEach((a, i) => {
+      const div = document.createElement('div');
+      div.className = 'admin-item';
+
+      const text = document.createElement('span');
+      text.textContent = `${a.username} ${a.blocked ? '(Заблокирован)' : ''}`;
+      div.appendChild(text);
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'admin-actions';
+
+      // Блокировка/разблокировка
+      const blockBtn = document.createElement('button');
+      blockBtn.textContent = a.blocked ? 'Разблокировать' : 'Заблокировать';
+      blockBtn.onclick = () => {
+        if(a.username === 'admin') {
+          alert('Главного админа заблокировать нельзя');
           return;
         }
-        localStorage.setItem('loggedInAdmin', admin.username);
-        location.reload();
-      } else {
-        document.getElementById('loginError').textContent = 'Неверное имя или пароль.';
-      }
+        a.blocked = !a.blocked;
+        saveData();
+        renderAdmins();
+        logAction(`${currentAdmin.username} ${a.blocked ? 'заблокировал' : 'разблокировал'} админа ${a.username}`);
+      };
+      actionsDiv.appendChild(blockBtn);
+
+      // Удалить админа
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Удалить';
+      delBtn.style.color = '#ff5555';
+      delBtn.onclick = () => {
+        if(a.username === 'admin') {
+          alert('Главного админа удалить нельзя');
+          return;
+        }
+        if(confirm(`Удалить админа ${a.username}?`)) {
+          admins.splice(i, 1);
+          saveData();
+          renderAdmins();
+          logAction(`${currentAdmin.username} удалил админа ${a.username}`);
+        }
+      };
+      actionsDiv.appendChild(delBtn);
+
+      div.appendChild(actionsDiv);
+      container.appendChild(div);
+    });
+  }
+
+  function addAdmin() {
+    if(currentAdmin.username !== 'admin') {
+      alert('Только admin может добавлять админов!');
+      return;
+    }
+    const username = document.getElementById('new-admin-name').value.trim();
+    const password = document.getElementById('new-admin-pass').value.trim();
+
+    if(!username || !password) {
+      alert('Введите имя и пароль для нового админа');
+      return;
     }
 
-    function logout() {
-      localStorage.removeItem('loggedInAdmin');
-      location.reload();
+    if(admins.find(a => a.username === username)) {
+      alert('Такой админ уже существует');
+      return;
     }
 
-    function addUser() {
-      const name = document.getElementById('name').value.trim();
-      const address = document.getElementById('address').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      if (!name || !address || !phone) return alert("Заполните все поля");
+    admins.push({ username, password, blocked: false });
+    saveData();
+    document.getElementById('new-admin-name').value = '';
+    document.getElementById('new-admin-pass').value = '';
+    renderAdmins();
+    logAction(`${currentAdmin.username} добавил админа ${username}`);
+  }
 
-      users.push({ name, address, phone, addedBy: loggedInAdmin });
-      localStorage.setItem('users', JSON.stringify(users));
-      adminActions.push(`${loggedInAdmin} добавил пользователя: ${name}`);
-      localStorage.setItem('adminActions', JSON.stringify(adminActions));
-      renderUsers(); renderAdminActions(); renderStatistics();
-    }
+  function updateUI() {
+    // Показываем или скрываем вкладку админов в зависимости от прав
+    document.getElementById('admin-tab').style.display = currentAdmin.username === 'admin' ? 'inline-block' : 'none';
+  }
 
-    function renderUsers() {
-      const tbody = document.querySelector('#userTable tbody');
-      tbody.innerHTML = '';
-      users.forEach((u, i) => {
-        tbody.innerHTML += `<tr>
-          <td>${u.name}</td><td>${u.phone}</td><td>${u.address}</td><td>${u.addedBy || '—'}</td>
-          <td><button onclick="openUserMap(${i})">Открыть карту</button>
-              <button onclick="deleteUser(${i})">Удалить</button></td>
-        </tr>`;
-      });
-    }
+  // Скрываем все секции по умолчанию
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
 
-    function renderAdminActions() {
-      const ul = document.getElementById('adminActionsList');
-      ul.innerHTML = '';
-      adminActions.forEach((action, index) => {
-        const canDelete = loggedInAdmin === 'admin1';
-        ul.innerHTML += `<li>${action} ${canDelete ? `<button onclick="deleteAction(${index})">Удалить</button>` : ''}</li>`;
-      });
-    }
+</script>
 
-    function renderStatistics() {
-      const stats = {};
-      users.forEach(u => stats[u.addedBy] = (stats[u.addedBy] || 0) + 1);
-      const list = document.getElementById('adminStats');
-      list.innerHTML = '';
-      for (const [admin, count] of Object.entries(stats)) {
-        list.innerHTML += `<li>${admin}: ${count}</li>`;
-      }
-    }
-
-    function deleteAction(index) {
-      if (loggedInAdmin !== 'admin1') return;
-      adminActions.splice(index, 1);
-      localStorage.setItem('adminActions', JSON.stringify(adminActions));
-      renderAdminActions();
-    }
-
-    function searchUser() {
-      const q = document.getElementById('search').value.toLowerCase();
-      const filtered = users.filter(u =>
-        u.name.toLowerCase().includes(q) ||
-        u.address.toLowerCase().includes(q) ||
-        u.phone.includes(q)
-      );
-      const tbody = document.querySelector('#userTable tbody');
-      tbody.innerHTML = '';
-      filtered.forEach((u, i) => {
-        tbody.innerHTML += `<tr>
-          <td>${u.name}</td><td>${u.phone}</td><td>${u.address}</td><td>${u.addedBy || '—'}</td>
-          <td><button onclick="openUserMap(${i})">Открыть карту</button>
-              <button onclick="deleteUser(${i})">Удалить</button></td>
-        </tr>`;
-      });
-    }
-
-    function openUserMap(index) {
-      const [lat, lng] = users[index].address.split(',').map(Number);
-      L.popup().setLatLng([lat, lng]).setContent(users[index].name).openOn(map);
-      map.setView([lat, lng], 10);
-    }
-
-    function deleteUser(index) {
-      if (confirm(`Удалить пользователя ${users[index].name}?`)) {
-        const user = users.splice(index, 1)[0];
-        adminActions.push(`${loggedInAdmin} удалил пользователя: ${user.name}`);
-        localStorage.setItem('users', JSON.stringify(users));
-        localStorage.setItem('adminActions', JSON.stringify(adminActions));
-        renderUsers(); renderAdminActions();
-      }
-    }
-
-    function renderAdminManagement() {
-      if (loggedInAdmin !== 'admin1') return;
-      const tbody = document.querySelector('#adminListTable tbody');
-      tbody.innerHTML = '';
-      admins.forEach((admin, i) => {
-        const isSelf = admin.username === 'admin1';
-        tbody.innerHTML += `<tr>
-          <td>${admin.username}</td>
-          <td>${admin.isBlocked ? 'Заблокирован' : 'Активен'}</td>
-          <td>${!isSelf ? `
-            <button onclick="toggleBlock(${i})">${admin.isBlocked ? 'Разблокировать' : 'Заблокировать'}</button>
-            <button onclick="changePassword(${i})">Сменить пароль</button>
-            <button onclick="deleteAdmin(${i})">Удалить</button>
-          ` : ''}</td>
-        </tr>`;
-      });
-    }
-
-    function toggleBlock(index) {
-      admins[index].isBlocked = !admins[index].isBlocked;
-      localStorage.setItem('admins', JSON.stringify(admins));
-      renderAdminManagement();
-    }
-
-    function deleteAdmin(index) {
-      if (confirm(`Удалить администратора ${admins[index].username}?`)) {
-        admins.splice(index, 1);
-        localStorage.setItem('admins', JSON.stringify(admins));
-        renderAdminManagement();
-      }
-    }
-
-    function changePassword(index) {
-      const newPassword = prompt("Введите новый пароль:");
-      if (newPassword) {
-        admins[index].password = newPassword;
-        localStorage.setItem('admins', JSON.stringify(admins));
-        alert("Пароль изменен.");
-      }
-    }
-
-    function registerNewAdmin() {
-      const username = document.getElementById('newAdminUsername').value.trim();
-      const password = document.getElementById('newAdminPassword').value.trim();
-      if (!username || !password) return alert('Заполните все поля');
-      if (admins.some(a => a.username === username)) return alert('Такой админ уже есть');
-
-      admins.push({ username, password, isBlocked: false });
-      localStorage.setItem('admins', JSON.stringify(admins));
-      renderAdminManagement();
-      alert(`Админ ${username} добавлен`);
-    }
-
-    const loggedInAdmin = localStorage.getItem('loggedInAdmin');
-    if (loggedInAdmin) {
-      document.getElementById('loginPage').style.display = 'none';
-      document.getElementById('adminPage').style.display = 'block';
-      document.getElementById('adminUsername').textContent = loggedInAdmin;
-      if (loggedInAdmin === 'admin1') {
-        document.getElementById('adminManagementTab').style.display = 'block';
-      }
-      renderUsers();
-      renderAdminActions();
-      renderStatistics();
-      renderAdminManagement();
-    } else {
-      document.getElementById('loginPage').style.display = 'block';
-      document.getElementById('adminPage').style.display = 'none';
-    }
-  </script>
 </body>
 </html>
